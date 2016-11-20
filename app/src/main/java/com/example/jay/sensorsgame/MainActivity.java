@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private int debugging = 0;
     private int atWall = 0;
     // Game Variables;
-    private boolean spriteOnScreen;
-    private int[] positionForSprite;
+    private boolean spriteHitWall;
+    private int[] screenSize;
     private int spriteLocX;
     private int spriteLocY;
     private Random r = new Random();
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         display.getSize(size);
         xMax = (float) size.x - 100;                                                                // (4)
         yMax = (float) size.y - 360;                                                                // (4)
-
+        spriteHitWall = false;
         r = new Random();
 
 
@@ -128,19 +128,36 @@ public class MainActivity extends AppCompatActivity {
         if (xPos > xMax) {
             xPos = xMax;
             xVel = 0;
+            spriteHitWall = true;
 
         } else if (xPos < 0) {
             xPos = 0;
             xVel = 0;
+            spriteHitWall = true;
         }
 
         if (yPos > yMax) {
             yPos = yMax;
             yVel = 0;
+            spriteHitWall = true;
 
         } else if (yPos <= 0) {
             yPos = 0;
             yVel = 0;
+            spriteHitWall = true;
+        }
+
+        /*
+        If the ball is close enough to the star, reposition the star and try again
+         */
+        int minDistance = 100;
+        if(Math.abs(xPos - spriteLocX) < minDistance && Math.abs(yPos - spriteLocY) < minDistance){
+            spriteLocX = r.nextInt(screenSize[0]);
+            spriteLocY = r.nextInt(screenSize[1]);
+            if(!spriteHitWall){
+            score++;
+            }
+            spriteHitWall = false;
         }
 
 
@@ -191,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
             star = Bitmap.createScaledBitmap(starSrc, wide, tall, true);
 
             // get values for positioning;
-            int[] screenSize = getScreenSize();
+            screenSize = getScreenSize();
             spriteLocX = r.nextInt(screenSize[0]);
             spriteLocY = r.nextInt(screenSize[1]);
 
