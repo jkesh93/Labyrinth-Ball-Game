@@ -14,11 +14,19 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 
+import java.util.Random;
+
+import static android.R.attr.value;
 import static android.R.attr.x;
 import static android.R.attr.y;
+import static java.lang.System.out;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,8 +42,18 @@ public class MainActivity extends AppCompatActivity {
     private float xPos, xAccel, xVel = 0.0f;
     private float yPos, yAccel, yVel = 0.0f;
     private float xMax, yMax;
+    private int score = 0;
+    private int level = 0;
+    private int debugging = 0;
+    // Game Variables;
+    private boolean spriteOnScreen;
+    private int[] positionForSprite;
+    private int spriteLocX;
+    private int spriteLocY;
+    private Random r = new Random();
     private Paint infoPaint;
     private Bitmap ball;
+    private Bitmap star;
     private SensorManager sensorManager;
     private SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
@@ -74,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
         xMax = (float) size.x - 100;                                                                // (4)
         yMax = (float) size.y - 360;                                                                // (4)
 
+        r = new Random();
+
+
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);                   // (5)
 
 
@@ -87,7 +109,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // update ball -- game engine runs from here mostly.
     private void updateBall(){
+
         float frameTime = 0.666f;
         xVel += (xAccel * frameTime);
         yVel += (yAccel * frameTime);
@@ -112,6 +136,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // function for getting screen size;
+    public int[] getScreenSize(){
+        int[] screenSizeArray = new int[2];
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE); // the results will be higher than using the activity context object or the getWindowManager() shortcut
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+        screenSizeArray[0] = screenWidth - 100;
+        screenSizeArray[1] = screenHeight - 360;
+
+        return screenSizeArray;
+    }
+
+
+
 
 
     @Override
@@ -131,17 +172,52 @@ public class MainActivity extends AppCompatActivity {
             infoPaint.setColor(Color.BLACK);
             infoPaint.setTextSize(48);
             Bitmap ballSrc = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
+            Bitmap starSrc = BitmapFactory.decodeResource(getResources(), R.drawable.star);
             final int dstWidth = 100;
             final int dstHeight = 100;
+            final int tall = 75;
+            final int wide = 75;
             ball = Bitmap.createScaledBitmap(ballSrc, dstWidth, dstHeight, true);
+            star = Bitmap.createScaledBitmap(starSrc, wide, tall, true);
+
+            // get values for positioning;
+            int[] screenSize = getScreenSize();
+            spriteLocX = r.nextInt(screenSize[0]);
+            spriteLocY = r.nextInt(screenSize[1]);
+
 
         }
 
         @Override
         protected void onDraw(Canvas canvas){
-            canvas.drawText("Level", 100, 50, infoPaint);
-            canvas.drawBitmap((ball), xPos, yPos, null);
+
+            canvas.drawText("Level: " + level, 100, 50, infoPaint);
+            canvas.drawText("Score: " + score, 100, 100, infoPaint);
+            if(debugging == 1) {
+                canvas.drawText("Position of ball: x: " + xPos, 100, 150, infoPaint);
+                canvas.drawText("Position of ball: y: " + yPos, 100, 200, infoPaint);
+                canvas.drawText("Accel : x: " + xAccel, 100, 250, infoPaint);
+                canvas.drawText("Accel : y: " + yAccel, 100, 300, infoPaint);
+                canvas.drawText("Vel : x: " + xVel, 100, 350, infoPaint);
+                canvas.drawText("Vel : y: " + yVel, 100, 400, infoPaint);
+            }
+            canvas.drawBitmap(ball, xPos, yPos, null);
+            canvas.drawBitmap(star, spriteLocX, spriteLocY, null);
             invalidate();
         }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event){
+            if(debugging == 0){
+                debugging = 1;
+            }else{
+                debugging = 0;
+            }
+
+
+            return true;
+        }
+
     }
+
 }
