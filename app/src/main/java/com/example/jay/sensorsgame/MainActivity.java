@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private int score = 0;
     private int level = 0;
     private int debugging = 0;
+    private int atWall = 0;
     // Game Variables;
     private boolean spriteOnScreen;
     private int[] positionForSprite;
@@ -113,8 +114,10 @@ public class MainActivity extends AppCompatActivity {
     private void updateBall(){
 
         float frameTime = 0.666f;
-        xVel += (xAccel * frameTime);
-        yVel += (yAccel * frameTime);
+        if(atWall == 0) {
+            xVel += (xAccel * frameTime);
+            yVel += (yAccel * frameTime);
+        }
 
         float xS = (xVel / 2) * frameTime;
         float yS = (yVel / 2) * frameTime;
@@ -124,15 +127,22 @@ public class MainActivity extends AppCompatActivity {
 
         if (xPos > xMax) {
             xPos = xMax;
+            xVel = 0;
+
         } else if (xPos < 0) {
             xPos = 0;
+            xVel = 0;
         }
 
         if (yPos > yMax) {
             yPos = yMax;
-        } else if (yPos < 0) {
+            yVel = 0;
+
+        } else if (yPos <= 0) {
             yPos = 0;
+            yVel = 0;
         }
+
 
     }
 
