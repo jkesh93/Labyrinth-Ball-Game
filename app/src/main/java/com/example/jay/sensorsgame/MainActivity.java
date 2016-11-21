@@ -44,13 +44,22 @@ public class MainActivity extends AppCompatActivity {
     private float xMax, yMax;
     private int score = 0;
     private int level = 0;
+
+    // debugging variables
     private int debugging = 0;
     private int atWall = 0;
+    long timeNow;
+    long timeTemp;
+    int tapCount = 0;
+
     // Game Variables;
     private boolean spriteHitWall;
     private int[] screenSize;
     private int spriteLocX;
     private int spriteLocY;
+    private int starsInARow = 0;
+    private int bestStarsInARow = 0;
+
     private Random r = new Random();
     private Paint infoPaint;
     private Bitmap ball;
@@ -125,27 +134,38 @@ public class MainActivity extends AppCompatActivity {
         xPos -= xS;
         yPos -= yS;
 
+
+
         if (xPos > xMax) {
             xPos = xMax;
             xVel = 0;
-            spriteHitWall = true;
+            starsInARow = 0;
 
         } else if (xPos < 0) {
             xPos = 0;
             xVel = 0;
-            spriteHitWall = true;
+            starsInARow = 0;
+
         }
 
         if (yPos > yMax) {
             yPos = yMax;
             yVel = 0;
-            spriteHitWall = true;
+            starsInARow = 0;
+
 
         } else if (yPos <= 0) {
             yPos = 0;
             yVel = 0;
-            spriteHitWall = true;
+            starsInARow = 0;
+
         }
+
+        if(starsInARow > bestStarsInARow){
+            bestStarsInARow = starsInARow;
+        }
+
+
 
         /*
         If the ball is close enough to the star, reposition the star and try again
@@ -155,7 +175,8 @@ public class MainActivity extends AppCompatActivity {
             spriteLocX = r.nextInt(screenSize[0]);
             spriteLocY = r.nextInt(screenSize[1]);
             if(!spriteHitWall){
-            score++;
+                starsInARow++;
+                score++;
             }
             spriteHitWall = false;
         }
@@ -218,15 +239,17 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onDraw(Canvas canvas){
 
-            canvas.drawText("Level: " + level, 100, 50, infoPaint);
             canvas.drawText("Score: " + score, 100, 100, infoPaint);
+            canvas.drawText("Streak: " + starsInARow, 100, 150, infoPaint);
+            canvas.drawText("Best: " + bestStarsInARow, 100, 200, infoPaint);
+          //  canvas.drawText("Score: " + score, 100, 100, infoPaint);
             if(debugging == 1) {
-                canvas.drawText("Position of ball: x: " + xPos, 100, 150, infoPaint);
-                canvas.drawText("Position of ball: y: " + yPos, 100, 200, infoPaint);
-                canvas.drawText("Accel : x: " + xAccel, 100, 250, infoPaint);
-                canvas.drawText("Accel : y: " + yAccel, 100, 300, infoPaint);
-                canvas.drawText("Vel : x: " + xVel, 100, 350, infoPaint);
-                canvas.drawText("Vel : y: " + yVel, 100, 400, infoPaint);
+                canvas.drawText("Position of ball: x: " + xPos, 100, 250, infoPaint);
+                canvas.drawText("Position of ball: y: " + yPos, 100, 300, infoPaint);
+                canvas.drawText("Accel : x: " + xAccel, 100, 350, infoPaint);
+                canvas.drawText("Accel : y: " + yAccel, 100, 400, infoPaint);
+                canvas.drawText("Vel : x: " + xVel, 100, 450, infoPaint);
+                canvas.drawText("Vel : y: " + yVel, 100, 500, infoPaint);
             }
             canvas.drawBitmap(ball, xPos, yPos, null);
             canvas.drawBitmap(star, spriteLocX, spriteLocY, null);
@@ -235,11 +258,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onTouchEvent(MotionEvent event){
-            if(debugging == 0){
+            long diff = 1000;
+            timeNow = System.currentTimeMillis();
+            if(debugging == 0 && Math.abs(timeNow - timeTemp) > diff || tapCount == 0){
                 debugging = 1;
-            }else{
-                debugging = 0;
+                timeTemp = System.currentTimeMillis();
+                Log.v("alert: ", "timeNOW: " + timeNow + " and timeTemp: " + timeTemp);
+                tapCount++;
             }
+            if(debugging == 1 && Math.abs(timeNow - timeTemp) > diff || tapCount == 0){
+                debugging = 0;
+                timeTemp = System.currentTimeMillis();
+                Log.v("alert: ", "timeNOW: " + timeNow + " and timeTemp: " + timeTemp);
+                tapCount++;
+            }
+
 
 
             return true;
