@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(size);
         xMax = (float) size.x - 100;                                                                // (4)
-        yMax = (float) size.y - 360;                                                                // (4)
+        yMax = (float) size.y - 175;                                                                // (4)
         spriteHitWall = false;
         r = new Random();
 
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             final int wide = 75;
             ball = Bitmap.createScaledBitmap(ballSrc, dstWidth, dstHeight, true);
             star = Bitmap.createScaledBitmap(starSrc, wide, tall, true);
-            backgroundImage = Bitmap.createScaledBitmap(floorSrc, screenSize[0]+100, screenSize[1]+150, true);
+            backgroundImage = Bitmap.createScaledBitmap(floorSrc, screenSize[0]+100, screenSize[1]+300, true);
 
             // get values for positioning;
             spriteLocX = r.nextInt(screenSize[0]);
