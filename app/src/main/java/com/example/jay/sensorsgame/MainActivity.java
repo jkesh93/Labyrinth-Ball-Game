@@ -23,6 +23,7 @@ import android.view.WindowManager;
 
 import java.util.Random;
 
+import static android.R.attr.screenSize;
 import static android.R.attr.value;
 import static android.R.attr.x;
 import static android.R.attr.y;
@@ -62,8 +63,14 @@ public class MainActivity extends AppCompatActivity {
 
     private Random r = new Random();
     private Paint infoPaint;
+
+    // Resource images
     private Bitmap ball;
     private Bitmap star;
+    private Bitmap backgroundImage;
+
+
+    // Sensor Manager and Listener
     private SensorManager sensorManager;
     private SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
@@ -86,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     // (1) Modified the onCreate method to ensure permanent portrait mode
     // (2) Built our new custom view using the (3) class constructor we built below.
     // (4) Obtain screen size to set xMax and yMax to it
-    // (5) Instantiate SensorManger by referencing the system's sensormanager
+    // (5) Instantiate SensorManger by referencing the system's sensor manager
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,21 +222,25 @@ public class MainActivity extends AppCompatActivity {
         // (3)
         public BallView(Context context){
             super(context);
+            // get values for positioning;
+            screenSize = getScreenSize();
+
             infoPaint = new Paint();
             infoPaint.setTextAlign(Paint.Align.LEFT);
             infoPaint.setColor(Color.BLACK);
             infoPaint.setTextSize(48);
-            Bitmap ballSrc = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
-            Bitmap starSrc = BitmapFactory.decodeResource(getResources(), R.drawable.star);
+            Bitmap ballSrc = BitmapFactory.decodeResource(getResources(), R.drawable.ball); // ball player
+            Bitmap starSrc = BitmapFactory.decodeResource(getResources(), R.drawable.star); // star points
+            Bitmap floorSrc = BitmapFactory.decodeResource(getResources(), R.drawable.floor); // background floor
             final int dstWidth = 100;
             final int dstHeight = 100;
             final int tall = 75;
             final int wide = 75;
             ball = Bitmap.createScaledBitmap(ballSrc, dstWidth, dstHeight, true);
             star = Bitmap.createScaledBitmap(starSrc, wide, tall, true);
+            backgroundImage = Bitmap.createScaledBitmap(floorSrc, screenSize[0]+100, screenSize[1]+150, true);
 
             // get values for positioning;
-            screenSize = getScreenSize();
             spriteLocX = r.nextInt(screenSize[0]);
             spriteLocY = r.nextInt(screenSize[1]);
 
@@ -238,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onDraw(Canvas canvas){
-
+            canvas.drawBitmap(backgroundImage,0,0,null);
             canvas.drawText("Score: " + score, 100, 100, infoPaint);
             canvas.drawText("Streak: " + starsInARow, 100, 150, infoPaint);
             canvas.drawText("Best: " + bestStarsInARow, 100, 200, infoPaint);
