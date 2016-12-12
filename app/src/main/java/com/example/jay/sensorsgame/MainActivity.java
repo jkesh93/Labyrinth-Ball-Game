@@ -64,11 +64,13 @@ public class MainActivity extends AppCompatActivity {
     private int bestStarsInARow = 0;
 
     private int powerUpRandom = 0;
-    private int chanceOfPowerUp = 5; // lower means higher chance of getting power ups -- or obstacles;
+    private int chanceOfPowerUp = 5; // lower means higher chance of getting power up;
+    private int chanceOfShield = 25;
+    private int shieldRandom = 0;
 
     private int shieldUse = 0;
     private int shieldOn = 0; // shieldOn boolean;
-
+    private int shieldUseLimit = 5;
     private Random r = new Random();
     /////////////////////////////////
 
@@ -119,11 +121,10 @@ public class MainActivity extends AppCompatActivity {
         BallView ballView = new BallView(this);                                                     // (2)
         setContentView(ballView);
 
-
-
         Point size = new Point();
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(size);
+
         xMax = (float) size.x - 100;                                                                // (4)
         yMax = (float) size.y - 175;                                                                // (4)
         spriteHitWall = false;
@@ -217,14 +218,16 @@ public class MainActivity extends AppCompatActivity {
             spriteLocX = r.nextInt(screenSize[0]);
             spriteLocY = r.nextInt(screenSize[1]);
             int lastNum = powerUpRandom;
+            int sLastNum = shieldRandom;
             powerUpRandom = r.nextInt(chanceOfPowerUp);
+            shieldRandom = r.nextInt(chanceOfShield);
             if(!spriteHitWall){
                 starsInARow++;
                 if(lastNum == 2) // carrot
                 {
                     score += 2;
                 }
-                if(lastNum == 3) // shield
+                if(sLastNum == 5) // shield
                 {
                     shieldOn = 1;
                     score++;
@@ -233,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                     score++;
                     shieldUse++;
 
-                    if(shieldUse == 3){
+                    if(shieldUse == shieldUseLimit){
                         shieldOn = 0;
                         shieldUse = 0;
                     }
@@ -311,6 +314,7 @@ public class MainActivity extends AppCompatActivity {
             spriteLocY = r.nextInt(screenSize[1]);
 
             powerUpRandom = r.nextInt(chanceOfPowerUp); // create a chance that you get a powerup;
+            shieldRandom = r.nextInt(chanceOfShield);
 
         }
 
@@ -321,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
             canvas.drawText("Streak: " + starsInARow, 100, 150, infoPaint);
             canvas.drawText("Best: " + bestStarsInARow, 100, 200, infoPaint);
             if(shieldOn == 1){
-                canvas.drawText("Shield ON", 700, 200, infoPaint);
+                canvas.drawText("Shield ON" + " for "  + (shieldUseLimit - shieldUse)  + " more stars", 400, 200, infoPaint);
             }
 
             if(debugging == 1) {
@@ -331,13 +335,13 @@ public class MainActivity extends AppCompatActivity {
                 canvas.drawText("Accel : y: " + yAccel, 100, 400, infoPaint);
                 canvas.drawText("Vel : x: " + xVel, 100, 450, infoPaint);
                 canvas.drawText("Vel : y: " + yVel, 100, 500, infoPaint);
-                canvas.drawText("powerUpVar: " + powerUpRandom, 100, 550, infoPaint);
+                canvas.drawText("shieldUpVar: " + shieldRandom, 100, 550, infoPaint);
             }
             canvas.drawBitmap(ball, xPos, yPos, null);
 
             if(powerUpRandom == 2){
                 canvas.drawBitmap(carrot, spriteLocX, spriteLocY, null);
-            }else if(powerUpRandom == 3){
+            }else if(shieldRandom == 5){
                 canvas.drawBitmap(shield, spriteLocX, spriteLocY, null);
             } else {
                 canvas.drawBitmap(star, spriteLocX, spriteLocY, null);
