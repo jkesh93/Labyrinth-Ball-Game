@@ -46,31 +46,36 @@ public class MainActivity extends AppCompatActivity {
     private int score = 0;
     private int level = 0;
 
-    // debugging variables
+    ////////// debugging variables
     private int debugging = 0;
     private int atWall = 0;
     long timeNow;
     long timeTemp;
     int tapCount = 0;
+    ////////////////////////////////
 
-    // Game Variables;
+
+    ////////////////// Game Variables;
     private boolean spriteHitWall;
     private int[] screenSize;
     private int spriteLocX;
     private int spriteLocY;
     private int starsInARow = 0;
     private int bestStarsInARow = 0;
-
     private Random r = new Random();
-    private Paint infoPaint;
+    /////////////////////////////////
 
-    // Resource images
+
+    ////////////////// Resources
+    private Paint infoPaint;
     private Bitmap ball;
     private Bitmap star;
     private Bitmap backgroundImage;
+    private Bitmap carrot;
+    ////////////////////////////////
 
 
-    // Sensor Manager and Listener
+    //////////////////////////////// Sensor Manager and Listener
     private SensorManager sensorManager;
     private SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
@@ -88,12 +93,17 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+    //////////////////////////////////////////////////////////////////
 
 
+
+    ////// HOW THIS IS BUILT
     // (1) Modified the onCreate method to ensure permanent portrait mode
     // (2) Built our new custom view using the (3) class constructor we built below.
     // (4) Obtain screen size to set xMax and yMax to it
     // (5) Instantiate SensorManger by referencing the system's sensor manager
+    //////////////////////////////////////////////////////////////////////////
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -225,19 +235,28 @@ public class MainActivity extends AppCompatActivity {
             // get values for positioning;
             screenSize = getScreenSize();
 
+            // text
             infoPaint = new Paint();
             infoPaint.setTextAlign(Paint.Align.LEFT);
             infoPaint.setColor(Color.BLACK);
             infoPaint.setTextSize(48);
+
+            // bitmaps
             Bitmap ballSrc = BitmapFactory.decodeResource(getResources(), R.drawable.ball); // ball player
             Bitmap starSrc = BitmapFactory.decodeResource(getResources(), R.drawable.star); // star points
             Bitmap floorSrc = BitmapFactory.decodeResource(getResources(), R.drawable.floor); // background floor
+            Bitmap carrotSrc = BitmapFactory.decodeResource(getResources(), R.drawable.carrot); // carrot powerup
+
+            // rebuilding heights
             final int dstWidth = 100;
             final int dstHeight = 100;
             final int tall = 75;
             final int wide = 75;
+
+            // finish scaled bitmaps
             ball = Bitmap.createScaledBitmap(ballSrc, dstWidth, dstHeight, true);
             star = Bitmap.createScaledBitmap(starSrc, wide, tall, true);
+            carrot = Bitmap.createScaledBitmap(carrotSrc, wide,tall, true);
             backgroundImage = Bitmap.createScaledBitmap(floorSrc, screenSize[0]+100, screenSize[1]+300, true);
 
             // get values for positioning;
