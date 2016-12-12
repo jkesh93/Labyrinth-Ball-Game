@@ -36,10 +36,10 @@ public class MainActivity extends AppCompatActivity {
     // resemblance with respect to fields, methods, and structure is due to this.
     // I tried to do somethings differently to reflect some original creativity
     // in the final outcome of this project and to provide a fuller learning experience
-    // rather than just simply understand the tutorial as is, and to fulfill project requirements.
+    // rather than just simply understand the tutorial as is, and to fulfill project requirements;
 
-    // Fields -- these fields  hold the ball's position, accel, x + y direction velocities.
-    // xMax and yMax represent screen's dimensions to make bounds and we have a bitmap object to hold the ball
+    // Fields -- these fields  hold the ball's position, accel, x + y direction velocities;
+    // xMax and yMax represent screen's dimensions to make bounds and we have a bitmap object to hold the ball;
     private float xPos, xAccel, xVel = 0.0f;
     private float yPos, yAccel, yVel = 0.0f;
     private float xMax, yMax;
@@ -62,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
     private int spriteLocY;
     private int starsInARow = 0;
     private int bestStarsInARow = 0;
+
+    private int powerUpRandom = 0;
+    private int chanceOfPowerUp = 5; // lower means higher chance of getting power ups -- or obstacles;
+
+    private int shieldUse = 0;
+    private int shieldOn = 0; // shieldOn boolean;
+
     private Random r = new Random();
     /////////////////////////////////
 
@@ -72,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap star;
     private Bitmap backgroundImage;
     private Bitmap carrot;
+    private Bitmap shield;
     ////////////////////////////////
 
 
@@ -82,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         public void onSensorChanged(SensorEvent event) {
             if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
                 xAccel = event.values[0];
-                yAccel = -event.values[1];                                                      // don't know why we have to negate the y value...
+                yAccel = -event.values[1];                                                      // don't know why we have to negate the y value...;
                 updateBall();
             }
 
@@ -98,10 +106,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     ////// HOW THIS IS BUILT
-    // (1) Modified the onCreate method to ensure permanent portrait mode
-    // (2) Built our new custom view using the (3) class constructor we built below.
-    // (4) Obtain screen size to set xMax and yMax to it
-    // (5) Instantiate SensorManger by referencing the system's sensor manager
+    // (1) Modified the onCreate method to ensure permanent portrait mode;
+    // (2) Built our new custom view using the (3) class constructor we built below;
+    // (4) Obtain screen size to set xMax and yMax to it;
+    // (5) Instantiate SensorManger by referencing the system's sensor manager;
     //////////////////////////////////////////////////////////////////////////
 
     @Override
@@ -136,10 +144,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // update ball -- game engine runs from here mostly.
+    // update ball -- physics runs from here mostly;
     private void updateBall(){
 
+
         float frameTime = 0.666f;
+
         if(atWall == 0) {
             xVel += (xAccel * frameTime);
             yVel += (yAccel * frameTime);
@@ -156,25 +166,40 @@ public class MainActivity extends AppCompatActivity {
         if (xPos > xMax) {
             xPos = xMax;
             xVel = 0;
-            starsInARow = 0;
 
-        } else if (xPos < 0) {
+            // we reset our starsInARow if we have shields off;
+            if(shieldOn == 0) {
+                starsInARow = 0;
+            }
+
+        }
+        if (xPos < 0) {
             xPos = 0;
             xVel = 0;
-            starsInARow = 0;
+
+            if(shieldOn == 0) {
+                starsInARow = 0;
+            }
 
         }
 
         if (yPos > yMax) {
             yPos = yMax;
             yVel = 0;
-            starsInARow = 0;
+
+            if(shieldOn == 0) {
+                starsInARow = 0;
+            }
 
 
-        } else if (yPos <= 0) {
+        }
+        if (yPos <= 0) {
             yPos = 0;
             yVel = 0;
-            starsInARow = 0;
+
+            if(shieldOn == 0) {
+                starsInARow = 0;
+            }
 
         }
 
@@ -185,15 +210,34 @@ public class MainActivity extends AppCompatActivity {
 
 
         /*
-        If the ball is close enough to the star, reposition the star and try again
+        If the ball is close enough to the star, reposition the star and try again;
          */
         int minDistance = 100;
         if(Math.abs(xPos - spriteLocX) < minDistance && Math.abs(yPos - spriteLocY) < minDistance){
             spriteLocX = r.nextInt(screenSize[0]);
             spriteLocY = r.nextInt(screenSize[1]);
+            int lastNum = powerUpRandom;
+            powerUpRandom = r.nextInt(chanceOfPowerUp);
             if(!spriteHitWall){
                 starsInARow++;
-                score++;
+                if(lastNum == 2) // carrot
+                {
+                    score += 2;
+                }
+                if(lastNum == 3) // shield
+                {
+                    shieldOn = 1;
+                    score++;
+                }
+                else {
+                    score++;
+                    shieldUse++;
+
+                    if(shieldUse == 3){
+                        shieldOn = 0;
+                        shieldUse = 0;
+                    }
+                }
             }
             spriteHitWall = false;
         }
@@ -205,7 +249,8 @@ public class MainActivity extends AppCompatActivity {
     public int[] getScreenSize(){
         int[] screenSizeArray = new int[2];
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE); // the results will be higher than using the activity context object or the getWindowManager() shortcut
+        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE); // the results will be higher than using the activity context object
+                                                                                                             // or the getWindowManager() shortcut;
         wm.getDefaultDisplay().getMetrics(displayMetrics);
         int screenWidth = displayMetrics.widthPixels;
         int screenHeight = displayMetrics.heightPixels;
@@ -242,10 +287,11 @@ public class MainActivity extends AppCompatActivity {
             infoPaint.setTextSize(48);
 
             // bitmaps
-            Bitmap ballSrc = BitmapFactory.decodeResource(getResources(), R.drawable.ball); // ball player
-            Bitmap starSrc = BitmapFactory.decodeResource(getResources(), R.drawable.star); // star points
-            Bitmap floorSrc = BitmapFactory.decodeResource(getResources(), R.drawable.floor); // background floor
-            Bitmap carrotSrc = BitmapFactory.decodeResource(getResources(), R.drawable.carrot); // carrot powerup
+            Bitmap ballSrc = BitmapFactory.decodeResource(getResources(), R.drawable.ball); // ball player;
+            Bitmap starSrc = BitmapFactory.decodeResource(getResources(), R.drawable.star); // star points;
+            Bitmap floorSrc = BitmapFactory.decodeResource(getResources(), R.drawable.floor); // background floor;
+            Bitmap carrotSrc = BitmapFactory.decodeResource(getResources(), R.drawable.carrot); // carrot powerup;
+            Bitmap shieldSrc = BitmapFactory.decodeResource(getResources(), R.drawable.shield); // shield
 
             // rebuilding heights
             final int dstWidth = 100;
@@ -257,12 +303,14 @@ public class MainActivity extends AppCompatActivity {
             ball = Bitmap.createScaledBitmap(ballSrc, dstWidth, dstHeight, true);
             star = Bitmap.createScaledBitmap(starSrc, wide, tall, true);
             carrot = Bitmap.createScaledBitmap(carrotSrc, wide,tall, true);
+            shield = Bitmap.createScaledBitmap(shieldSrc, wide,tall, true);
             backgroundImage = Bitmap.createScaledBitmap(floorSrc, screenSize[0]+100, screenSize[1]+300, true);
 
             // get values for positioning;
             spriteLocX = r.nextInt(screenSize[0]);
             spriteLocY = r.nextInt(screenSize[1]);
 
+            powerUpRandom = r.nextInt(chanceOfPowerUp); // create a chance that you get a powerup;
 
         }
 
@@ -272,7 +320,10 @@ public class MainActivity extends AppCompatActivity {
             canvas.drawText("Score: " + score, 100, 100, infoPaint);
             canvas.drawText("Streak: " + starsInARow, 100, 150, infoPaint);
             canvas.drawText("Best: " + bestStarsInARow, 100, 200, infoPaint);
-          //  canvas.drawText("Score: " + score, 100, 100, infoPaint);
+            if(shieldOn == 1){
+                canvas.drawText("Shield ON", 700, 200, infoPaint);
+            }
+
             if(debugging == 1) {
                 canvas.drawText("Position of ball: x: " + xPos, 100, 250, infoPaint);
                 canvas.drawText("Position of ball: y: " + yPos, 100, 300, infoPaint);
@@ -280,9 +331,17 @@ public class MainActivity extends AppCompatActivity {
                 canvas.drawText("Accel : y: " + yAccel, 100, 400, infoPaint);
                 canvas.drawText("Vel : x: " + xVel, 100, 450, infoPaint);
                 canvas.drawText("Vel : y: " + yVel, 100, 500, infoPaint);
+                canvas.drawText("powerUpVar: " + powerUpRandom, 100, 550, infoPaint);
             }
             canvas.drawBitmap(ball, xPos, yPos, null);
-            canvas.drawBitmap(star, spriteLocX, spriteLocY, null);
+
+            if(powerUpRandom == 2){
+                canvas.drawBitmap(carrot, spriteLocX, spriteLocY, null);
+            }else if(powerUpRandom == 3){
+                canvas.drawBitmap(shield, spriteLocX, spriteLocY, null);
+            } else {
+                canvas.drawBitmap(star, spriteLocX, spriteLocY, null);
+            }
             invalidate();
         }
 
