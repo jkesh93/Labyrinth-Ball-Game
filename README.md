@@ -6,11 +6,12 @@
 ### Features
 * Debugging Mode 
 * Background 
+* Powerups
 * Persistant High score (IP) 
 * Menu (IP) 
 * Ad Space (IP)
 * Sounds (IP)
-* Powerups (IP)
+* Powerups
 
 IP means In Progress.
 
